@@ -84,22 +84,35 @@ classes = list(QUESTION_BANK.keys())
 
 class_selected = st.selectbox('Select Class', classes)
 if class_selected:
-    subjects = list(QUESTION_BANK[class_selected].keys())
-    subject_selected = st.selectbox('Select Subject', subjects)
-    if subject_selected:
-        topics = list(QUESTION_BANK[class_selected][subject_selected].keys())
-        topics_selected = st.multiselect('Select Topics', topics)
+    main_subject = st.selectbox('Select Subject Category', list(QUESTION_BANK[class_selected].keys()))
+    if main_subject:
+        # Flatten all topics with subject prefixes for combined selection
+        all_topics = []
+        topic_map = {}  # Maps "Sub-subject - Topic" to (sub-subject, topic)
+        for subj, topics_dict in QUESTION_BANK[class_selected][main_subject].items():
+            for topic in topics_dict.keys():
+                label = f"{subj} - {topic}"
+                all_topics.append(label)
+                topic_map[label] = (subj, topic)
+
+        select_all = st.checkbox("Select All Topics")
+        if select_all:
+            selected_flat_topics = all_topics
+        else:
+            selected_flat_topics = st.multiselect('Select Topics', all_topics)
+        
         generate = st.button('Generate Questions')
         
         if generate:
-            if not topics_selected:
+            if not selected_flat_topics:
                 st.warning("Please select at least one topic.")
             else:
                 questions = []
-                for topic in topics_selected:
+                for flat_topic in selected_flat_topics:
+                    subj, topic = topic_map[flat_topic]
                     questions += random.sample(
-                        QUESTION_BANK[class_selected][subject_selected][topic],
-                        min(2, len(QUESTION_BANK[class_selected][subject_selected][topic]))
+                        QUESTION_BANK[class_selected][main_subject][subj][topic],
+                        min(2, len(QUESTION_BANK[class_selected][main_subject][subj][topic]))
                     )
                 
                 st.write("### Generated Questions")
