@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ICSE Mock Paper Generator</title>
+  </head>
+  <body>
+    <h1>ICSE Mock Paper Generator</h1>
+    <form method="POST">
+      <label>Select Class:</label>
+      <select name="class" onchange="this.form.submit()">
+        {% for c in classes %}
+          <option value="{{c}}" {% if c==selected_class %}selected{% endif %}>{{c}}</option>
+        {% endfor %}
+      </select>
+      <label>Select Subject:</label>
+      <select name="subject" onchange="this.form.submit()">
+        {% for s in subjects %}
+          <option value="{{s}}" {% if s==selected_subject %}selected{% endif %}>{{s}}</option>
+        {% endfor %}
+      </select>
+      {% if topics %}
+        <label>Select Topics:</label>
+        {% for t in topics %}
+          <input type="checkbox" name="topics" value="{{t}}">{{t}}
+        {% endfor %}
+        <button type="submit">Generate Questions</button>
+      {% endif %}
+    </form>
+    {% if questions %}
+      <h2>Generated Questions</h2>
+      <ul>
+      {% for q in questions %}
+        <li>{{q}}</li>
+      {% endfor %}
+      </ul>
+      <a href="{{ url_for('download') }}"><button>Download Excel</button></a>
+    {% endif %}
+  </body>
+</html>
